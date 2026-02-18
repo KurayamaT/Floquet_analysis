@@ -45,7 +45,7 @@ dq = parallel.pool.DataQueue;
 progress_tracker('init', N);
 afterEach(dq, @(~) progress_tracker('update', 0));
 
-parfor idx = 1:N
+for idx = 1:N
     s = s_range(idx);
     alpha = asin(0.5*s);
     omega = -1.04*alpha;
