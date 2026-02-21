@@ -32,13 +32,7 @@ opts_nr   = odeset('RelTol',1e-2, 'AbsTol',1e-6, 'Refine',4, ...
 opts_fine = odeset('RelTol',1e-12,'AbsTol',1e-14,'Refine',4, ...
                    'Events',@collision_with_guard);
 
-% Start parallel pool if not running
-p = gcp('nocreate');
-if isempty(p)
-    parpool;
-end
-fprintf('Computing Floquet multipliers (%d workers)...\n', gcp().NumWorkers);
-tic;
+
 
 % Progress reporting
 dq = parallel.pool.DataQueue;
