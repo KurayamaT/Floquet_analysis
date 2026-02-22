@@ -13,7 +13,7 @@ a = 0;
 tau = 3.84;
 per = 5;        % Max integration time per stride (stride period ~ pi)
 
-s_range = linspace(0.05, 1.5, 500);
+s_range = [linspace(0.01, 0.05, 500), linspace(0.05, 0.80, 2000)];
 N = length(s_range);
 
 % Pre-allocate sliced output arrays
