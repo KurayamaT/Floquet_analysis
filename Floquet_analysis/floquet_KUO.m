@@ -13,7 +13,7 @@ a = 0;
 tau = 3.84;
 per = 5;        % Max integration time per stride (stride period ~ pi)
 
-s_range = linspace(0.05, 1.5, 500);
+s_range = [linspace(0.01, 0.05, 500), linspace(0.05, 0.80, 2000)];
 N = length(s_range);
 
 % Pre-allocate sliced output arrays
@@ -32,13 +32,7 @@ opts_nr   = odeset('RelTol',1e-2, 'AbsTol',1e-6, 'Refine',4, ...
 opts_fine = odeset('RelTol',1e-12,'AbsTol',1e-14,'Refine',4, ...
                    'Events',@collision_with_guard);
 
-% Start parallel pool if not running
-p = gcp('nocreate');
-if isempty(p)
-    parpool;
-end
-fprintf('Computing Floquet multipliers (%d workers)...\n', gcp().NumWorkers);
-tic;
+
 
 % Progress reporting
 dq = parallel.pool.DataQueue;
