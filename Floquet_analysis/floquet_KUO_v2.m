@@ -245,7 +245,8 @@ V_dim = speeds * sqrt(g*L);
 fig = figure('Color','w','Position',[100 100 800 500],'Name','Manuscript Figure 1');
 
 % Only use converged stable orbits for clean plot
-idx_stable = find(stable & speeds > 0.02);
+idx_stable = find(stable(:)' & speeds > 0.02);
+
 v_plot  = speeds(idx_stable);
 V_plot  = V_dim(idx_stable);
 lm_plot = lam_max(idx_stable);
