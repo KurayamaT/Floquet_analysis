@@ -34,10 +34,11 @@ for ki = 1:length(k_vals)
 
     speeds  = NaN(1, N);
     s_out   = NaN(1, N);
+    T_out   = NaN(1, N);
     lam_all = complex(NaN(N, 3));
     valid   = false(1, N);
 
-    for idx = 1:N
+    parfor idx = 1:N
         s = s_range(idx);
         alpha = asin(0.5*s);
         omega = -1.04*alpha;
@@ -71,6 +72,7 @@ for ki = 1:length(k_vals)
 
         speeds(idx)    = s / T_fp;
         s_out(idx)     = s;
+        T_out(idx)     = T_fp;
         lam_all(idx,:) = lam.';
         valid(idx)     = true;
     end
@@ -83,20 +85,53 @@ for ki = 1:length(k_vals)
     mask = valid;
     sp = speeds(mask);
     sv = s_out(mask);
+    st = T_out(mask);
     la = lam_all(mask,:);
     [sp, si] = sort(sp);
     sv = sv(si);
+    st = st(si);
     la = la(si,:);
 
-    ALL(ki).k     = k_hip;
-    ALL(ki).v     = sp;
-    ALL(ki).s     = sv;
-    ALL(ki).lam   = la;
+    ALL(ki).k       = k_hip;
+    ALL(ki).v       = sp;
+    ALL(ki).s       = sv;
+    ALL(ki).T       = st;
+    ALL(ki).lam     = la;
     ALL(ki).lam_max = max(abs(la), [], 2)';
     ALL(ki).N_half  = -log(2) ./ log(ALL(ki).lam_max);
 end
 
 fprintf('\nAll sweeps complete.\n\n');
+
+
+% =====================================================================
+% CSV EXPORT: one file per k_hip value
+% =====================================================================
+for ki = 1:length(k_vals)
+    k_hip = ALL(ki).k;
+    v   = ALL(ki).v;
+    sv  = ALL(ki).s;
+    st  = ALL(ki).T;
+    la  = ALL(ki).lam;
+    lm  = ALL(ki).lam_max;
+    nh  = ALL(ki).N_half;
+
+    fname = sprintf('sensitivity_khip_%+.3f.csv', k_hip);
+    fid = fopen(fname, 'w');
+    fprintf(fid, 's,v,T_stride,lam1_re,lam1_im,lam2_re,lam2_im,lam3_re,lam3_im,abs_lam1,abs_lam2,abs_lam3,lam_max,N_half\n');
+    for i = 1:length(v)
+        fprintf(fid, '%.6f,%.6f,%.6f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.4f\n', ...
+            sv(i), v(i), st(i), ...
+            real(la(i,1)), imag(la(i,1)), ...
+            real(la(i,2)), imag(la(i,2)), ...
+            real(la(i,3)), imag(la(i,3)), ...
+            abs(la(i,1)), abs(la(i,2)), abs(la(i,3)), ...
+            lm(i), nh(i));
+    end
+    fclose(fid);
+    fprintf('CSV saved: %s (%d rows)\n', fname, length(v));
+end
+fprintf('\n');
 
 
 % =====================================================================
