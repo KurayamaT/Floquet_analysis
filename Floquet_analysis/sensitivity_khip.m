@@ -223,6 +223,72 @@ end
 fprintf('\n');
 
 
+% =====================================================================
+% FIGURE S1: Manuscript supplementary figure (3-panel)
+%   (a) |lambda_max| vs V for k=-0.08 and k=-0.16
+%   (b) N_1/2 vs V
+%   (c) Delta |lambda_max| (x10^3)
+% =====================================================================
+ki_08 = find([ALL.k] == -0.08);
+ki_16 = find([ALL.k] == -0.16);
+
+if ~isempty(ki_08) && ~isempty(ki_16)
+    v08 = ALL(ki_08).v * sqrt(g*L);
+    v16 = ALL(ki_16).v * sqrt(g*L);
+    lm08 = ALL(ki_08).lam_max;
+    lm16 = ALL(ki_16).lam_max;
+    nh08 = ALL(ki_08).N_half;
+    nh16 = ALL(ki_16).N_half;
+
+    % Interpolate k=-0.08 onto k=-0.16 speed grid for difference
+    lm08_interp = interp1(v08, lm08, v16, 'linear');
+    dlam = (lm16 - lm08_interp) * 1e3;  % x10^3
+
+    figure('Color','w','Position',[100 100 1000 320],'Name','Figure S1');
+
+    % (a) Spectral radius
+    subplot(1,3,1); hold on;
+    plot(v08, lm08, '-k', 'LineWidth', 1.8, 'DisplayName', 'k_{hip} = -0.08');
+    plot(v16, lm16, '--b', 'LineWidth', 1.8, 'DisplayName', 'k_{hip} = -0.16');
+    yline(1, 'k:', 'LineWidth', 0.5, 'HandleVisibility','off');
+    xlabel('V (m/s)', 'FontSize', 11);
+    ylabel('|\lambda_{max}|', 'FontSize', 11);
+    title('(a) Spectral radius', 'FontSize', 12);
+    legend('Location','northwest','FontSize',9);
+    grid on; ylim([0.4 1.05]); xlim([0 0.8]);
+    set(gca, 'FontSize', 10);
+
+    % (b) Perturbation half-life
+    subplot(1,3,2); hold on;
+    nh08_plot = nh08; nh08_plot(nh08_plot > 30) = NaN;
+    nh16_plot = nh16; nh16_plot(nh16_plot > 30) = NaN;
+    plot(v08, nh08_plot, '-k', 'LineWidth', 1.8, 'DisplayName', 'k_{hip} = -0.08');
+    plot(v16, nh16_plot, '--b', 'LineWidth', 1.8, 'DisplayName', 'k_{hip} = -0.16');
+    xlabel('V (m/s)', 'FontSize', 11);
+    ylabel('N_{1/2} (strides)', 'FontSize', 11);
+    title('(b) Perturbation half-life', 'FontSize', 12);
+    legend('Location','northeast','FontSize',9);
+    grid on; ylim([0 30]); xlim([0 0.8]);
+    set(gca, 'FontSize', 10);
+
+    % (c) Difference
+    subplot(1,3,3); hold on;
+    plot(v16, dlam, '-', 'Color', [0.6 0.1 0.1], 'LineWidth', 1.8);
+    yline(0, 'k:', 'LineWidth', 0.5);
+    xlabel('V (m/s)', 'FontSize', 11);
+    ylabel('\Delta|\lambda_{max}| (\times10^3)', 'FontSize', 11);
+    title('(c) Difference', 'FontSize', 12);
+    grid on; xlim([0 0.8]);
+    set(gca, 'FontSize', 10);
+
+    sgtitle('Figure S1. Effect of hip spring stiffness on stability', 'FontSize', 13);
+    saveas(gcf, 'FigS1_khip_sensitivity.png');
+    fprintf('Figure saved: FigS1_khip_sensitivity.png\n');
+else
+    fprintf('Warning: k_hip = -0.08 or -0.16 not found. Figure S1 skipped.\n');
+end
+
+
 % =========================================================================
 % SUBFUNCTIONS
 % =========================================================================
